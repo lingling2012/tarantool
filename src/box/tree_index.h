@@ -31,7 +31,8 @@
 
 #include "index.h"
 
-#include <third_party/sptree.h>
+#include "say.h"
+#include "sptree_avl.h"
 
 /**
  * Instantiate sptree definitions

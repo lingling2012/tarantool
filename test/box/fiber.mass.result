@@ -8,7 +8,7 @@ lua ftest()
 lua result = {}
 ---
 ...
-lua for i = 1, 10000 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
 ---
 ...
 lua box.fiber.sleep(.3)
@@ -16,5 +16,111 @@ lua box.fiber.sleep(.3)
 ...
 lua #result
 ---
- - 10000
+ - 300
+...
+lua result = {}
+---
+...
+lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+---
+...
+lua box.fiber.sleep(.3)
+---
+...
+lua #result
+---
+ - 300
+...
+lua result = {}
+---
+...
+lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+---
+...
+lua box.fiber.sleep(.3)
+---
+...
+lua #result
+---
+ - 300
+...
+lua result = {}
+---
+...
+lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+---
+...
+lua box.fiber.sleep(.3)
+---
+...
+lua #result
+---
+ - 300
+...
+lua result = {}
+---
+...
+lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+---
+...
+lua box.fiber.sleep(.3)
+---
+...
+lua #result
+---
+ - 300
+...
+lua result = {}
+---
+...
+lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+---
+error: '[string "for i = 1, 300 do box.fiber.resume(box.fiber...."]:1: fiber.resume(): the fiber is dead'
+...
+lua box.fiber.sleep(.3)
+---
+...
+lua #result
+---
+ - 300
+...
+lua result = {}
+---
+...
+lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+---
+...
+lua box.fiber.sleep(.3)
+---
+...
+lua #result
+---
+ - 300
+...
+lua result = {}
+---
+...
+lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+---
+error: '[string "for i = 1, 300 do box.fiber.resume(box.fiber...."]:1: fiber.resume(): the fiber is dead'
+...
+lua box.fiber.sleep(.3)
+---
+...
+lua #result
+---
+ - 300
+...
+lua result = {}
+---
+...
+lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+---
+...
+lua box.fiber.sleep(.3)
+---
+...
+lua #result
+---
+ - 300
 ...

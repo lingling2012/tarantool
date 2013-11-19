@@ -1,0 +1,9 @@
+# encoding: tarantool
+exec admin "lua ftest = function() box.fiber.sleep( 0.1 * math.random() ) return true end"
+exec admin "lua ftest()"
+exec admin "lua result = {}"
+
+exec admin "lua for i = 1, 10000 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end"
+
+exec admin "lua box.fiber.sleep(.3)"
+exec admin "lua #result"

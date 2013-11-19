@@ -1,0 +1,20 @@
+lua ftest = function() box.fiber.sleep( 0.1 * math.random() ) return true end
+---
+...
+lua ftest()
+---
+ - true
+...
+lua result = {}
+---
+...
+lua for i = 1, 10000 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
+---
+...
+lua box.fiber.sleep(.3)
+---
+...
+lua #result
+---
+ - 10000
+...

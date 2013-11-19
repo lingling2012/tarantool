@@ -188,6 +188,7 @@ box.net = {
 setmetatable(box.net.self, { __index = box.net.box })
 
 box.net.box.new = function(host, port, reconnect_timeout)
+    print("box_net_box_new")
     if reconnect_timeout == nil then
         reconnect_timeout = 0
     else
@@ -225,6 +226,7 @@ box.net.box.new = function(host, port, reconnect_timeout)
 
 
         process = function(self, op, request)
+            print("start_process_"..tostring(op))
             local started = box.time()
             local timeout = self.request_timeout
             self.request_timeout = nil
@@ -241,10 +243,11 @@ box.net.box.new = function(host, port, reconnect_timeout)
                     self.processing[sync] = nil
                     return nil
                 end
-
                 timeout = timeout - (box.time() - started)
             else
-                self.processing.wch:put(request)
+                print("put_into_queue_(wch)_"..box.cjson.encode(request))
+                local stat = self.processing.wch:put(request)
+                print("put_status_"..tostring(stat))
             end
 
             local res
@@ -289,20 +292,20 @@ box.net.box.new = function(host, port, reconnect_timeout)
             if self.s ~= nil then
                 return true
             end
-
+            print("create_socket")
             local sc = box.socket.tcp()
             if sc == nil then
                 self:fatal("Can't create socket")
                 return false
             end
-
+            print("connect_with_socket")
             local s = { sc:connect( self.host, self.port ) }
             if s[1] == nil then
                 self:fatal("Can't connect to %s:%s: %s",
                     self.host, self.port, s[4])
                 return false
             end
-
+            print("connect_ok")
             self.s = sc
 
             return true
@@ -312,11 +315,13 @@ box.net.box.new = function(host, port, reconnect_timeout)
             if self.s == nil then
                 return
             end
+            print("prepare_read_response")
             local res = { self.s:recv(12) }
             if res[4] ~= nil then
                 self:fatal("Can't read socket: %s", res[3])
                 return
             end
+            print("read_header")
             local header = res[1]
             if string.len(header) ~= 12 then
                 self:fatal("Unexpected eof while reading header")
@@ -325,6 +330,7 @@ box.net.box.new = function(host, port, reconnect_timeout)
 
             local op, blen, sync = box.unpack('iii', header)
 
+            print("read_body")
             local body = ''
             if blen > 0 then
                 res = { self.s:recv(blen) }
@@ -338,6 +344,8 @@ box.net.box.new = function(host, port, reconnect_timeout)
                     return
                 end
             end
+            print("done_read")
+
             return sync, header .. body
         end,
 
@@ -352,7 +360,9 @@ box.net.box.new = function(host, port, reconnect_timeout)
                 end
 
                 -- wakeup write fiber
-                self.processing.rch:put(true, 0)
+                print("put_into_queue_(rch)_true")
+                local stat = self.processing.rch:put(true, 0)
+                print("put_status_(rch)_"..tostring(stat))
 
                 while not self.closed do
                     local sync, resp = self:read_response()
@@ -375,17 +385,23 @@ box.net.box.new = function(host, port, reconnect_timeout)
         wfiber = function(self)
             local request
             while not self.closed do
-                while self.s == nil do
-                    self.processing.rch:get(1)
+                print("rch : "..tostring(self.processing.rch))
+                print("wch : "..tostring(self.processing.wch))
+                while self.s == nil do -- WHY NOT CHECKING STAT FOR TRUE?
+                    local stat = self.processing.rch:get(1)
+                    print("rch:get() : "..box.cjson.encode(stat))
                 end
                 if request == nil then
                     request = self.processing.wch:get(1)
+                    print("wch:get() : "..box.cjson.encode(request))
                 end
                 if self.s ~= nil and request ~= nil then
+                    print("sending_request")
                     local res = { self.s:send(request) }
                     if res[1] ~= string.len(request) then
                         self:fatal("Error while write socket: %s", res[4])
                     end
+                    print("send_ok_request")
                     request = nil
                 end
             end
@@ -403,6 +419,7 @@ box.net.box.new = function(host, port, reconnect_timeout)
         end,
 
         close = function(self)
+            print("closing_boxnetbox")
             if self.closed then
                 error("box.net.box: already closed")
             end
@@ -414,8 +431,11 @@ box.net.box.new = function(host, port, reconnect_timeout)
             self:fatal(message)
 
             -- wake up write fiber
-            self.processing.rch:put(true, 0)
-            self.processing.wch:put(true, 0)
+            print("put_into_queue_(rch,rcw)_true")
+            local stat1 = self.processing.rch:put(true, 0)
+            local stat2 = self.processing.wch:put(true, 0)
+            print("put_status_(rch,rcw)_"..tostring(stat1).." "..tostring(stat2))
+            print("closing_done")
             return true
         end
     }

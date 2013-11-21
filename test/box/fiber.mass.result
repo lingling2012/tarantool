@@ -75,7 +75,6 @@ lua result = {}
 ...
 lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
 ---
-error: '[string "for i = 1, 300 do box.fiber.resume(box.fiber...."]:1: fiber.resume(): the fiber is dead'
 ...
 lua box.fiber.sleep(.3)
 ---
@@ -102,7 +101,6 @@ lua result = {}
 ...
 lua for i = 1, 300 do box.fiber.resume(box.fiber.create(function() box.fiber.detach() table.insert( result, ftest() ) end )) end
 ---
-error: '[string "for i = 1, 300 do box.fiber.resume(box.fiber...."]:1: fiber.resume(): the fiber is dead'
 ...
 lua box.fiber.sleep(.3)
 ---
